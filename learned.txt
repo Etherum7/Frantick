@@ -1,0 +1,80 @@
+1.  I think the current system proposed here is a bit repetitive and we could very well avoid to have to load each route into the main index.ts by simply creating an other index.ts inside the route folder and create a "requires" function that would map over the routes to load:
+
+    const requires = (path, array, extention) =>
+    array.map(item => ({
+        path: require(`../routes/${path}/${item}`),
+        url: extention !== undefined
+        ? `/${path}/${extention}/${item}`
+        : `/${path}/${item}`
+    }))
+    
+    let routes = ["login", "logout", "register", "user"]
+        routes = requires("api", routes, "users")
+    
+    module.exports = routes = [ ...routes ]
+    This is a ruff proposal (not converted in typescript yet) but its work and you could potentially add more "routes folders" into it
+
+    This way a api folder router would look like this:
+
+    const express = require("express")
+    const router = express.Router()
+    
+    router.get("/", (req, res) => {
+    res.send("test")
+    })
+    
+    module.exports = router
+    and you don't have to worry about the url here.
+
+
+
+    Then inside the main index.js you have just to map over these imported routes:
+
+    const routes = require("./routes")
+    routes.map(route => app.use(route.url, route.path))
+
+2.  
+  body('email')
+    .normalizeEmail() // Sanitizes email
+    .isEmail()
+    .withMessage('Email must be valid')
+    .bail() // halts validation if previous validation fails
+    .custom(async (value) => {
+      let existingUser = await User.findOne({ email: value });
+ 
+      if (existingUser) {
+        throw new BadRequestError('Email in use');
+      }
+      return true;
+    }),
+3.
+  Hi Irv-
+
+There might be a misunderstanding on how cookies are handled.
+
+You mentioned that:
+
+any site that the end-user of this system (the ticketing.dev system) visits, other than this system, will know or, 
+can know that he/she also has visited the ticketing site
+We're setting a cookie when the user navigates to ticketing.dev. 
+I assume you're suggesting that if the user then navigated to malicious-domain.com , that page could inspect the cookie 
+tied to ticketing.dev .  This isn't true
+
+Although malicious-domain.com could technically get the user to make a request to ticket.dev that includes cookies, malicious-domain.com
+ has absolutely zero access to the cookie exchanged between the browser and ticketing.dev.  Malicious-domain.com can't access that cookie
+  using JS code.
+
+With our current setup, malicious-domain.com wouldn't even be able to get our users to make a request to ticketing.dev .  
+Making a cross-origin request would require us to set up some
+CORS headers - we didn't do that in the final version of our app.  
+In addition, even if we had enabled CORS, cookies are not included in requests 
+from the browser unless the 'Access-Control-Allow-Origin' header returned from ticketing.dev specifically 
+listed malicious-domain.com as a valid domain.
+
+4. 
+Schema vs. Service Class Sanitizing
+0
+Brent · Lecture 167 · 5 months ago
+Are there any advantages of sanitizing the user data directly in the schema rather than creating a static 
+service class to do the sanitizing? I know Stephen briefly touched on the topic of MVC design patterns at the end, but 
+I'm just curious if there are benefits to doing it in the schema that I might not be aware of.
