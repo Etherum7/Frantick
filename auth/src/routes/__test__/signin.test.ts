@@ -1,5 +1,5 @@
 import request from "supertest";
-import { app } from "../../../app";
+import { app } from "../../app";
 
 it("First time user signing in ", async () => {
   await request(app)

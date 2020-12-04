@@ -44,7 +44,7 @@ router.post(
     //Create a jwt token
     try {
       var userJwt = jwt.sign(
-        { id: newUser._id, email: newUser.email },
+        { id: newUser.id, email: newUser.email },
         process.env.JWT_KEY!
       ); //tells ts to not worry about
     } catch (err) {

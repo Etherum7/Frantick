@@ -1,5 +1,5 @@
 import request from "supertest";
-import { app } from "../../../app";
+import { app } from "../../app";
 
 it("should return 201 for user created ", async () => {
   return request(app)

@@ -25,30 +25,29 @@ interface UserModel
 // options to remove certain fields from the returned mongo doc when it is built
 
 //Schema
-const userSchema = new mongoose.Schema(
-  {
-    email: { type: String, required: true },
-    password: { type: String, required: true },
+const userSchema = new mongoose.Schema({
+  email: { type: String, required: true },
+  password: { type: String, required: true },
+});
+userSchema.set("toJSON", {
+  transform: (doc: any, returned: any) => {
+    returned.id = returned._id;
+    delete returned._id;
+    delete returned.password; // remove password field in returned object
+    delete returned.__v;
   },
-
-  {
-    toJSON: {
-      transform(doc, returned) {
-        returned.id = returned._id;
-        delete returned._id;
-        delete returned.password; // remove password field in returned object
-        delete returned.__v;
-      },
-    },
-  }
-);
+});
 
 // statics method acts on whole model
-userSchema.statics.build = (attrs: userAttrs) => {
+// userSchema.statics.build = (attrs: userAttrs) => {
+//   return new User(attrs);
+// };
+
+userSchema.static("build", (attrs: userAttrs) => {
   return new User(attrs);
-};
+});
 //* Pre save hook run everytime we save runs every time
-userSchema.pre("save", async function (done) {
+userSchema.pre("save", async function () {
   // we have to pass in done as mongose does not know when the async function endds
   if (this.isModified("password")) {
     const hashed = await Password.toHash(
@@ -56,7 +55,6 @@ userSchema.pre("save", async function (done) {
     );
     this.set("password", hashed);
   }
-  done();
 });
 
 // while instance methods act on  particular
